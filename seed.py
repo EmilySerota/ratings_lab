@@ -2,8 +2,9 @@
 
 from sqlalchemy import func
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
+import datetime as dt
 
 from model import connect_to_db, db
 from server import app
@@ -36,20 +37,49 @@ def load_users():
 
 def load_movies():
     """Load movies from u.item into database."""
+    Movie.query.delete()
 
     for row in open('seed_data/u.item'):
-        row = row.rstrip()
-        movie_id, title, released_at, imdb_url = row.split('|')
+        row = row.rstrip().split('|')
+        movie_id = row[0]
+        title = row[1]
+        released_str = row[2]
+        imdb_url = row[4]
+
+        if released_str:
+            released_at = dt.datetime.strptime(released_str, "%d-%b-%Y")
+        else:
+            released_at = None
+
+        # if the title has a year of release at the end, remove it
+        if title.endswith(')'):
+            title = title[:-7]
 
         movie = Movie(movie_id=movie_id,
                         title=title,
                         released_at=released_at,
                         imdb_url=imdb_url)
-        #stopped here 
+         
+        db.session.add(movie)
+         
+    db.session.commit()
+
 
 def load_ratings():
     """Load ratings from u.data into database."""
+    Rating.query.delete()
 
+    for row in open('seed_data/u.data'):
+        user_id, movie_id, score, timestamp = row.rstrip().split('\t')
+
+
+        rating = Rating(movie_id=movie_id,
+                        user_id=user_id,
+                        score=score)
+
+        db.session.add(rating)
+
+    db.session.commit()
 
 def set_val_user_id():
     """Set value for the next user_id after seeding database"""
