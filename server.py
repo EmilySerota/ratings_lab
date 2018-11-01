@@ -75,26 +75,23 @@ def login_form():
 def login_process():
     """process login form"""
 
+    #get email & password that user entered for comparison below
     email = request.form.get('email')
     password = request.form.get('password')
+    #pull in information for that specific user by their email and place info to refer back to in variable user
+    user = User.query.filter_by(email = email).first()
 
-
-    # If email not in db, bring them to register page
-    if not User.query.filter_by(email = email).all():
+    # If user doesn't exist after searching by email above in db, bring them to register page
+    if not user:
         return redirect('/register')
-
-    # If password doesn't match email, alert them and bring back to login page
-    if not User.query.filter_by(email = email, password = password).all():
+    #if the password user entered is not = to the password pulled in from that user variable above redirect    
+    elif password != user.password:
         flash("Incorrect password")
         return redirect('/login')
-
+    # otherwise if successful login, redirect to specific user page by sending to the route above with the id of that user variable info. 
     else:
-        User.query.filter_by(user_id = user).all()
-    # otherwise if successful login, redirect to homepage - changing to render user page
-    session['username'] = email
-    #flash("Logged In")
-    #users = User.query.all()
-    return redirect(f"/users/{user.user_id}")
+        session['username'] = email
+        return redirect(f"/users/{user.user_id}")
 
 
 @app.route('/logout')
