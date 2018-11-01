@@ -36,8 +36,13 @@ def user_list():
 @app.route('/users/<user_id>')
 def user_detail(user_id):
 
+    #pull in user object information for that specific user & pass to template
     user = User.query.get(user_id)
-    return render_template('user_info.html', user=user)
+    #pull in all rating object information for that specific user id and pass into template
+    
+
+    ratings = Rating.query.filter_by(user_id=user_id)
+    return render_template('user_info.html', user=user, ratings=ratings)
 
 @app.route('/register', methods=['GET'])
 def register_form():
