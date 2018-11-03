@@ -38,11 +38,23 @@ def user_detail(user_id):
 
     #pull in user object information for that specific user & pass to template
     user = User.query.get(user_id)
-    #pull in all rating object information for that specific user id and pass into template
-    
 
+    #pull in all rating object information for that specific user id and pass into template
     ratings = Rating.query.filter_by(user_id=user_id)
     return render_template('user_info.html', user=user, ratings=ratings)
+
+@app.route('/movies')
+def movie_list():
+
+    movies = Movie.query.all() 
+    return render_template('movie_list.html', movies=movies)
+
+@app.route('/movies/<movie_id>')
+def movie_detail():
+
+    movie = Movies.query.get(movie_id) #get object info for movies and place into movie variable so can refer back to in template wtih dot
+    return render_template('movie_info.html', movie=movie) #go to movie template and pass in movie data
+
 
 @app.route('/register', methods=['GET'])
 def register_form():
